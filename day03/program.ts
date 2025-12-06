@@ -22,3 +22,37 @@ timedExecute(() => {
     }
     console.log(`Total jolts: ${totalJolts}`);
 });
+
+console.log(`==== ${day}: PART 2 ====`);
+timedExecute(() => {
+    const TARGET_LENGTH = 12;
+    let totalJolts = BigInt(0);
+    
+    for (let bank of lines) {
+        let digits = bank.split("");
+        let result = "";
+        let startIndex = 0;
+        
+        for (let i = 0; i < TARGET_LENGTH; i++) {
+            const remainingToFind = TARGET_LENGTH - i - 1;
+            const maxStartIndex = digits.length - remainingToFind - 1;
+            
+            let bestDigit = "";
+            let bestIndex = startIndex;
+            
+            for (let j = startIndex; j <= maxStartIndex; j++) {
+                if (digits[j] > bestDigit) {
+                    bestDigit = digits[j];
+                    bestIndex = j;
+                }
+            }
+            
+            result += bestDigit;
+            startIndex = bestIndex + 1;
+        }
+        
+        totalJolts += BigInt(result);
+    }
+    
+    console.log(`Total jolts: ${totalJolts}`);
+});
