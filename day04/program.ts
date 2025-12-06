@@ -22,13 +22,26 @@ timedExecute(() => {
 
 console.log(`==== ${day}: PART 2 ====`);
 timedExecute(() => {
-    let atPositions = map.getAllPositionsWithValue('@');
-    
-    let result = atPositions.filter(pos => {
-        let neighbors = pos.getNeighborsIncludingDiagonal(0, map.height, 0, map.width);
-        let adjacentAtCount = neighbors.filter(n => map.get(n) === '@').length;
-        return adjacentAtCount < 4;
-    });
-    
-    console.log(`Found ${result.length} positions with @ that have fewer than 4 adjacent @`);
+    let removals = 0;
+    while (true) {
+        let atPositions = map.getAllPositionsWithValue('@');
+
+        let toRemove = atPositions.filter(pos => {
+            let neighbors = pos.getNeighborsIncludingDiagonal(0, map.height, 0, map.width);
+            let adjacentAtCount = neighbors.filter(n => map.get(n) === '@').length;
+            return adjacentAtCount < 4;
+        });
+
+        if (toRemove.length === 0) {
+            break;
+        }
+
+        for (let pos of toRemove) {
+            map.set(pos, '.');
+        }
+
+        removals += toRemove.length;
+    }
+
+    console.log(`Removed ${removals} positions with fewer than 4 adjacent @`);
 });
