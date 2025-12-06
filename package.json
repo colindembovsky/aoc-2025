@@ -1,0 +1,27 @@
+{
+  "name": "aoc2024",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "go": "yarn run build && node ./dist/day$DAY/program.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/colindembovsky/aoc2024.git"
+  },
+  "author": "Colin Dembovsky",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/colindembovsky/aoc2024/issues"
+  },
+  "homepage": "https://github.com/colindembovsky/aoc2024#readme",
+  "dependencies": {
+    "@types/node": "^22.10.1",
+    "fs": "^0.0.1-security"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}
