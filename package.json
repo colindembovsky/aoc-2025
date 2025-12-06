@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npx tsc",
+    "build": "tsc",
     "go": "yarn run build && node ./dist/day$DAY/program.js"
   },
   "repository": {
@@ -18,10 +18,10 @@
   },
   "homepage": "https://github.com/colindembovsky/aoc2024#readme",
   "dependencies": {
-    "@types/node": "^22.10.1",
+    "@types/node": "^24.10.1",
     "fs": "^0.0.1-security"
   },
   "devDependencies": {
-    "typescript": "^5.7.2"
+    "typescript": "^5.9.3"
   }
 }
