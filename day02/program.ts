@@ -23,7 +23,7 @@ timedExecute(() => {
     console.log(`Sum of palindromes: ${sum}`);
 });
 
-console.log(`==== ${day}: PART 1 ====`);
+console.log(`==== ${day}: PART 2 ====`);
 timedExecute(() => {
     let sum = 0;
     for (let r in ranges) {
