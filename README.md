@@ -1,4 +1,4 @@
-# A Repo for Advent of Code 2024 in TypeScript
+# A Repo for Advent of Code 2025 in TypeScript
 
 ## Structure
 
