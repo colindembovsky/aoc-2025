@@ -3,19 +3,18 @@ import { timedExecute } from "../utils/miscUtils";
 
 let day = dayName(__dirname);
 let contents = loadInput(__dirname, Difficulty.HARD);
-let lines = contents.split("\n");
+
+const SHAPE_SIZE = 3;
 
 class Shape {
     constructor(public index: number, public shape: number[][]) {
     }
 
     rotate90(): Shape {
-        let newShape: number[][] = [];
-        let rows = this.shape.length;
-        let cols = this.shape[0].length;
-        for (let c = 0; c < cols; c++) {
-            let newRow: number[] = [];
-            for (let r = rows - 1; r >= 0; r--) {
+        const newShape: number[][] = [];
+        for (let c = 0; c < SHAPE_SIZE; c++) {
+            const newRow: number[] = [];
+            for (let r = SHAPE_SIZE - 1; r >= 0; r--) {
                 newRow.push(this.shape[r][c]);
             }
             newShape.push(newRow);
@@ -25,11 +24,6 @@ class Shape {
 
     flipHorizontal(): Shape {
         let newShape: number[][] = this.shape.map(row => row.slice().reverse());
-        return new Shape(this.index, newShape);
-    }
-
-    flipVertical(): Shape {
-        let newShape: number[][] = this.shape.slice().reverse();
         return new Shape(this.index, newShape);
     }
 
@@ -73,11 +67,9 @@ shapeLines.map(g => {
     shapes.set(index, new Shape(index, shapeNums));
 });
 
-// Pre-computed shape data for fast placement checks
+// Pre-computed shape data for fast placement checks (all shapes are 3x3)
 interface PlacementData {
-    cells: number[];  // flattened indices of 1s relative to top-left
-    width: number;
-    height: number;
+    cells: number[];  // encoded as r * SHAPE_SIZE + c for each filled cell
 }
 
 function precomputePlacements(shape: Shape): PlacementData[] {
@@ -86,13 +78,10 @@ function precomputePlacements(shape: Shape): PlacementData[] {
     
     for (const orientation of shape.getOrientations()) {
         const cells: number[] = [];
-        const height = orientation.shape.length;
-        const width = orientation.shape[0].length;
-        
-        for (let r = 0; r < height; r++) {
-            for (let c = 0; c < width; c++) {
+        for (let r = 0; r < SHAPE_SIZE; r++) {
+            for (let c = 0; c < SHAPE_SIZE; c++) {
                 if (orientation.shape[r][c] === 1) {
-                    cells.push(r * 1000 + c); // encode as r*1000+c for easy decode
+                    cells.push(r * SHAPE_SIZE + c);  // encode as r*3+c (0-8)
                 }
             }
         }
@@ -101,7 +90,7 @@ function precomputePlacements(shape: Shape): PlacementData[] {
         const key = cells.join(",");
         if (!seen.has(key)) {
             seen.add(key);
-            placements.push({ cells, width, height });
+            placements.push({ cells });
         }
     }
     return placements;
@@ -147,16 +136,11 @@ function checkShapesFitRegion(region: { width: number, height: number, shapeCoun
     }
     
     function canPlace(placement: PlacementData, startRow: number, startCol: number): boolean {
-        // Check bounds
-        if (startRow + placement.height > height || startCol + placement.width > width) {
-            return false;
-        }
-        // Check collisions
+        if (startRow + SHAPE_SIZE > height || startCol + SHAPE_SIZE > width) return false;
         for (const encoded of placement.cells) {
-            const r = Math.floor(encoded / 1000);
-            const c = encoded % 1000;
-            const gridIdx = (startRow + r) * width + (startCol + c);
-            if (occupied.has(gridIdx)) return false;
+            const r = Math.floor(encoded / SHAPE_SIZE);
+            const c = encoded % SHAPE_SIZE;
+            if (occupied.has((startRow + r) * width + (startCol + c))) return false;
         }
         return true;
     }
@@ -164,8 +148,8 @@ function checkShapesFitRegion(region: { width: number, height: number, shapeCoun
     function place(placement: PlacementData, startRow: number, startCol: number): number[] {
         const placed: number[] = [];
         for (const encoded of placement.cells) {
-            const r = Math.floor(encoded / 1000);
-            const c = encoded % 1000;
+            const r = Math.floor(encoded / SHAPE_SIZE);
+            const c = encoded % SHAPE_SIZE;
             const gridIdx = (startRow + r) * width + (startCol + c);
             occupied.add(gridIdx);
             placed.push(gridIdx);
@@ -196,14 +180,12 @@ function checkShapesFitRegion(region: { width: number, height: number, shapeCoun
         // Try each orientation (starting from minOrientationIdx for same-shape symmetry breaking)
         for (let oi = minOrientationIdx; oi < placements.length; oi++) {
             const placement = placements[oi];
-            // Determine starting row based on symmetry breaking
             const rowStart = (oi === minOrientationIdx) ? minRow : 0;
             
-            for (let row = rowStart; row <= height - placement.height; row++) {
-                // Determine starting col based on symmetry breaking
+            for (let row = rowStart; row <= height - SHAPE_SIZE; row++) {
                 const colStart = (oi === minOrientationIdx && row === minRow) ? minCol : 0;
                 
-                for (let col = colStart; col <= width - placement.width; col++) {
+                for (let col = colStart; col <= width - SHAPE_SIZE; col++) {
                     if (canPlace(placement, row, col)) {
                         const placed = place(placement, row, col);
                         
@@ -229,9 +211,9 @@ console.log(`==== ${day}: PART 1 ====`);
 timedExecute(() => {
     let canFitCount = 0;
     regions.forEach((region, regionIndex) => {
-        console.log(`Region ${regionIndex} (${region.width}x${region.height}):`);
+        //console.log(`Region ${regionIndex} (${region.width}x${region.height}):`);
         const canFit = checkShapesFitRegion(region, shapes);
-        console.log(`  Can fit shapes: ${canFit}`);
+        //console.log(`  Can fit shapes: ${canFit}`);
         if (canFit) canFitCount++;
     });
     console.log(`Total regions that can fit shapes: ${canFitCount}`);
